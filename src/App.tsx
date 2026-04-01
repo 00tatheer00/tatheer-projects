@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import emailjs from '@emailjs/browser'
 import logoUrl from './assets/logo.png'
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import {
   SiAuth0,
   SiCss,
@@ -975,28 +976,15 @@ const techCategories: { title: string; items: { id: TechId; label: string }[] }[
 ]
 
 export default function App() {
-  const [page, setPage] = useState<'home' | 'projects' | 'details'>('home')
-  const [filter, setFilter] = useState<Project['kind']>('frontend')
-  const [visibleCount, setVisibleCount] = useState(4)
-  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [isBootLoading, setIsBootLoading] = useState(true)
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [projectsMenuOpen, setProjectsMenuOpen] = useState(false)
   const projectsMenuRef = useRef<HTMLDivElement | null>(null)
   const [contactOpen, setContactOpen] = useState(false)
   const contactRef = useRef<HTMLDivElement | null>(null)
   const [contactStatus, setContactStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [contactError, setContactError] = useState<string>('')
-
-  const filteredProjects = useMemo(
-    () => projects.filter((p) => p.kind === filter),
-    [filter],
-  )
-
-  useEffect(() => {
-    setVisibleCount(4)
-    setIsLoadingMore(false)
-  }, [filter])
+  const location = useLocation()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const t = setTimeout(() => setIsBootLoading(false), 1500)
@@ -1005,7 +993,7 @@ export default function App() {
 
   useEffect(() => {
     setProjectsMenuOpen(false)
-  }, [page])
+  }, [location.pathname, location.search])
 
   useEffect(() => {
     if (!projectsMenuOpen) return
@@ -1154,34 +1142,10 @@ export default function App() {
     }
   }
 
-  const goProjects = (kind?: Project['kind']) => {
-    if (kind) setFilter(kind)
-    setPage('projects')
-  }
-
-  const openDetails = (id: string) => {
-    setSelectedProjectId(id)
-    setPage('details')
-  }
-
-  const selectedProject = useMemo(
-    () => projects.find((p) => p.id === selectedProjectId) ?? null,
-    [selectedProjectId],
-  )
-
-  const loadMore = async () => {
-    if (isLoadingMore) return
-    const remaining = filteredProjects.length - visibleCount
-    if (remaining <= 0) return
-
-    setIsLoadingMore(true)
-    await new Promise((r) => setTimeout(r, 1000))
-    setVisibleCount((c) => Math.min(filteredProjects.length, c + 4))
-    setIsLoadingMore(false)
-  }
+  const isHome = location.pathname === '/'
 
   return (
-    <div className={`page ${page === 'home' ? 'page--home' : 'page--alt'}`}>
+    <div className={`page ${isHome ? 'page--home' : 'page--alt'}`}>
       <header className="top">
         <div className="container">
           <div className="top__bar">
@@ -1194,9 +1158,9 @@ export default function App() {
 
             <nav className="nav" aria-label="Primary">
               <button
-                className={`nav__btn ${page === 'home' ? 'is-active' : ''}`}
+                className={`nav__btn ${isHome ? 'is-active' : ''}`}
                 type="button"
-                onClick={() => setPage('home')}
+                onClick={() => navigate('/')}
               >
                 Home
               </button>
@@ -1219,24 +1183,24 @@ export default function App() {
                 </button>
                 <div className="dropdown__menu" role="menu" aria-label="Projects filter">
                   <button
-                    className={`dropdown__item ${filter === 'frontend' ? 'is-active' : ''}`}
+                    className="dropdown__item"
                     type="button"
                     role="menuitemradio"
-                    aria-checked={filter === 'frontend'}
+                    aria-checked={location.pathname === '/projects' && new URLSearchParams(location.search).get('kind') !== 'fullstack'}
                     onClick={() => {
-                      goProjects('frontend')
+                      navigate('/projects?kind=frontend')
                       setProjectsMenuOpen(false)
                     }}
                   >
                     Frontend Projects
                   </button>
                   <button
-                    className={`dropdown__item ${filter === 'fullstack' ? 'is-active' : ''}`}
+                    className="dropdown__item"
                     type="button"
                     role="menuitemradio"
-                    aria-checked={filter === 'fullstack'}
+                    aria-checked={location.pathname === '/projects' && new URLSearchParams(location.search).get('kind') === 'fullstack'}
                     onClick={() => {
-                      goProjects('fullstack')
+                      navigate('/projects?kind=fullstack')
                       setProjectsMenuOpen(false)
                     }}
                   >
@@ -1264,396 +1228,42 @@ export default function App() {
 
       <main className="main">
         <div className="container">
-          <div className="content" key={`${page}:${selectedProjectId ?? ''}`}>
-          {isBootLoading ? (
-            <div className="boot" aria-label="Loading">
-              <div className="boot__hero skeleton" aria-hidden="true">
-                <div className="boot__line boot__line--h1" />
-                <div className="boot__line boot__line--h2" />
-                <div className="boot__line boot__line--p1" />
-                <div className="boot__line boot__line--p2" />
-              </div>
-              <div className="boot__row">
-                <div className="boot__card skeleton" aria-hidden="true" />
-                <div className="boot__card skeleton" aria-hidden="true" />
-              </div>
-              <div className="boot__grid" aria-hidden="true">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div className="card skeleton" key={`boot-skel-${i}`}>
-                    <div className="thumb skeleton__thumb" />
-                    <div className="card__body">
-                      <div className="skeleton__line skeleton__line--t" />
-                      <div className="skeleton__line skeleton__line--d1" />
-                      <div className="skeleton__line skeleton__line--d2" />
-                    </div>
-                  <div className="card__cta skeleton__btn" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : page === 'home' ? (
-            <>
-              <section className="hero hero--home">
-                <h1 className="hero__title">
-                  Showcasing My Latest
-                  <br />
-                  Projects &amp; Solutions
-                </h1>
-                <p className="hero__sub">
-                  Explore a curated collection of my frontend and full-stack applications,
-                  <br />
-                  built with passion from Peshawar, Pakistan.
-                </p>
-              </section>
-
-              <section className="categories" aria-label="Project categories">
-                <div className="category category--left">
-                  <div className="category__head">
-                    <div>
-                      <div className="category__kicker">Category</div>
-                      <h2 className="category__title">Frontend Projects</h2>
-                      <p className="category__desc">
-                        UI-heavy builds: landing pages, dashboards, design systems and components.
-                      </p>
-                    </div>
-                    <button className="category__btn" type="button" onClick={() => goProjects('frontend')}>
-                      View Frontend
-                    </button>
-                  </div>
+          <div className="content" key={location.key}>
+            {isBootLoading ? (
+              <div className="boot" aria-label="Loading">
+                <div className="boot__hero skeleton" aria-hidden="true">
+                  <div className="boot__line boot__line--h1" />
+                  <div className="boot__line boot__line--h2" />
+                  <div className="boot__line boot__line--p1" />
+                  <div className="boot__line boot__line--p2" />
                 </div>
-
-                <div className="category category--right">
-                  <div className="category__head">
-                    <div>
-                      <div className="category__kicker">Category</div>
-                      <h2 className="category__title">Full Stack Projects</h2>
-                      <p className="category__desc">
-                        End-to-end apps: auth, APIs, databases, realtime features and admin tools.
-                      </p>
-                    </div>
-                    <button className="category__btn" type="button" onClick={() => goProjects('fullstack')}>
-                      View Full Stack
-                    </button>
-                  </div>
+                <div className="boot__row">
+                  <div className="boot__card skeleton" aria-hidden="true" />
+                  <div className="boot__card skeleton" aria-hidden="true" />
                 </div>
-              </section>
-
-              <section className="stats" aria-label="Quick stats">
-                <div className="stat">
-                  <div className="stat__num">32+</div>
-                  <div className="stat__label">Projects shipped</div>
-                </div>
-                <div className="stat">
-                  <div className="stat__num">3–7d</div>
-                  <div className="stat__label">Typical MVP turnaround</div>
-                </div>
-                <div className="stat">
-                  <div className="stat__num">100%</div>
-                  <div className="stat__label">Responsive-first</div>
-                </div>
-                <div className="stat">
-                  <div className="stat__num">A+</div>
-                  <div className="stat__label">UI polish mindset</div>
-                </div>
-              </section>
-
-              <section className="panel" aria-label="What I do">
-                <div className="panel__head">
-                  <div>
-                    <div className="panel__kicker">Services</div>
-                    <h2 className="panel__title">Professional, production-ready builds</h2>
-                    <p className="panel__desc">
-                      From pixel-perfect UI to scalable full-stack systems—clean UX, clear code, and
-                      fast iteration.
-                    </p>
-                  </div>
-                  <a
-                    className="panel__cta"
-                    href="https://drive.google.com/file/d/1zMZhqjNw0h35NL6uRxD9JI9lHQBsS5h6/view?usp=sharing"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Download CV
-                  </a>
-                </div>
-
-                <div className="features" aria-label="Highlights">
-                  <div className="feature">
-                    <div className="feature__title">Frontend engineering</div>
-                    <div className="feature__desc">React UI, state patterns, component systems, and accessibility.</div>
-                  </div>
-                  <div className="feature">
-                    <div className="feature__title">Full-stack delivery</div>
-                    <div className="feature__desc">APIs, auth, DB design, deployment workflows, and admin panels.</div>
-                  </div>
-                  <div className="feature">
-                    <div className="feature__title">Performance & UX</div>
-                    <div className="feature__desc">Fast loads, smooth interactions, sensible defaults, and clarity.</div>
-                  </div>
-                </div>
-
-                <div className="tech" aria-label="Tech stack">
-                  {techCategories.map((c) => (
-                    <section className="tech__section" key={c.title} aria-label={c.title}>
-                      <div className="tech__title">{c.title}</div>
-                      <div className="tech__grid">
-                        {c.items.map((it) => (
-                          <div className="tech__tile" key={it.id} title={it.label} aria-label={it.label}>
-                            <TechIcon id={it.id} label={it.label} />
-                            <div className="tech__name">{it.label}</div>
-                          </div>
-                        ))}
+                <div className="boot__grid" aria-hidden="true">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div className="card skeleton" key={`boot-skel-${i}`}>
+                      <div className="thumb skeleton__thumb" />
+                      <div className="card__body">
+                        <div className="skeleton__line skeleton__line--t" />
+                        <div className="skeleton__line skeleton__line--d1" />
+                        <div className="skeleton__line skeleton__line--d2" />
                       </div>
-                    </section>
+                      <div className="card__cta skeleton__btn" />
+                    </div>
                   ))}
                 </div>
-              </section>
-
-              <section className="cta" aria-label="Call to action">
-                <div className="cta__inner">
-                  <div>
-                    <div className="cta__kicker">Let’s build something</div>
-                    <h2 className="cta__title">Have a project in mind?</h2>
-                    <p className="cta__desc">
-                      Share a brief and I’ll respond with a clear plan, timeline, and estimate.
-                    </p>
-                  </div>
-                  <div className="cta__actions">
-                    <a className="cta__btn cta__btn--primary" href="mailto:tatheerabidi00@gmail.com">
-                      Email Me
-                    </a>
-                    <a
-                      className="cta__btn"
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        goProjects()
-                      }}
-                    >
-                      See Projects
-                    </a>
-                  </div>
-                </div>
-              </section>
-            </>
-          ) : page === 'projects' ? (
-            <>
-              <section className="hero hero--projects">
-                <h1 className="hero__title">Projects</h1>
-                <p className="hero__sub">
-                  Showing: <strong>{filter === 'frontend' ? 'Frontend Projects' : 'Full Stack Projects'}</strong>
-                </p>
-                <div className="segmented" role="tablist" aria-label="Projects filter">
-                  <button
-                    className={`segmented__btn ${filter === 'frontend' ? 'is-active' : ''}`}
-                    type="button"
-                    role="tab"
-                    aria-selected={filter === 'frontend'}
-                    onClick={() => setFilter('frontend')}
-                  >
-                    Frontend
-                  </button>
-                  <button
-                    className={`segmented__btn ${filter === 'fullstack' ? 'is-active' : ''}`}
-                    type="button"
-                    role="tab"
-                    aria-selected={filter === 'fullstack'}
-                    onClick={() => setFilter('fullstack')}
-                  >
-                    Full Stack
-                  </button>
-                </div>
-              </section>
-
-              <section className="grid" aria-label="Projects">
-                {filteredProjects.slice(0, visibleCount).map((p) => (
-                  <article
-                    className="card card--clickable"
-                    key={p.title}
-                    tabIndex={0}
-                    role="link"
-                    aria-label={`View details: ${p.title}`}
-                    onClick={() => openDetails(p.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') openDetails(p.id)
-                    }}
-                  >
-                    <Thumb tone={p.tone} />
-                    <div className="card__body">
-                      <h3 className="card__title">{p.title}</h3>
-                      <p className="card__desc">{p.description}</p>
-                    </div>
-                    <button
-                      className="card__cta"
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        openDetails(p.id)
-                      }}
-                    >
-                      View Details
-                    </button>
-                  </article>
-                ))}
-
-                {isLoadingMore
-                  ? Array.from({ length: Math.min(4, Math.max(0, filteredProjects.length - visibleCount)) }).map(
-                      (_, idx) => (
-                        <div className="card skeleton" key={`sk-${filter}-${visibleCount}-${idx}`} aria-hidden="true">
-                          <div className="thumb skeleton__thumb" />
-                          <div className="card__body">
-                            <div className="skeleton__line skeleton__line--t" />
-                            <div className="skeleton__line skeleton__line--d1" />
-                            <div className="skeleton__line skeleton__line--d2" />
-                          </div>
-                          <div className="card__cta skeleton__btn" />
-                        </div>
-                      ),
-                    )
-                  : null}
-              </section>
-
-              <div className="more">
-                <button
-                  className="more__btn"
-                  type="button"
-                  onClick={loadMore}
-                  disabled={isLoadingMore || visibleCount >= filteredProjects.length}
-                >
-                  {visibleCount >= filteredProjects.length ? 'No more projects' : isLoadingMore ? 'Loading…' : 'View More'}
-                </button>
               </div>
-            </>
-          ) : (
-            <>
-              {selectedProject ? (
-                <section className="details" aria-label="Project details">
-                  <button className="details__back" type="button" onClick={() => setPage('projects')}>
-                    ← Back to Projects
-                  </button>
-
-                  <div className="details__top">
-                    <div className="details__meta">
-                      <div className="details__kicker">
-                        {selectedProject.kind === 'frontend' ? 'Frontend Project' : 'Full Stack Project'}
-                      </div>
-                      <h1 className="details__title">{selectedProject.title}</h1>
-                      <p className="details__sub">{selectedProject.description}</p>
-
-                      <div className="details__chips" aria-label="Project facts">
-                        <span className="pill">Client: {selectedProject.client}</span>
-                        <span className="pill">Role: {selectedProject.role}</span>
-                        <span className="pill">Timeline: {selectedProject.timeline}</span>
-                      </div>
-
-                      <div className="details__actions">
-                        <a
-                          className="cta__btn cta__btn--primary"
-                          href={selectedProject.liveUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Live Preview
-                        </a>
-                        <a className="cta__btn" href={selectedProject.repoUrl} target="_blank" rel="noreferrer">
-                          GitHub Repo
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="details__hero" aria-label="Website screenshot">
-                      <div className={`shot shot--${selectedProject.tone}`}>
-                        <div className="shot__bar">
-                          <div className="shot__dot" />
-                          <div className="shot__dot" />
-                          <div className="shot__dot" />
-                        </div>
-                        <div className="shot__body">
-                          <div className="shot__sidebar" />
-                          <div className="shot__content">
-                            <div className="shot__h" />
-                            <div className="shot__p" />
-                            <div className="shot__p shot__p--2" />
-                            <div className="shot__grid">
-                              <div className="shot__card" />
-                              <div className="shot__card" />
-                              <div className="shot__card" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="details__cols">
-                    <div className="panel">
-                      <div className="panel__head">
-                        <div>
-                          <div className="panel__kicker">Stack</div>
-                          <h2 className="panel__title">What it includes</h2>
-                          <p className="panel__desc">Key building blocks and deliverables for this project.</p>
-                        </div>
-                      </div>
-                      <div className="stack" aria-label="Stack">
-                        {selectedProject.stack.map((t) => (
-                          <span className="pill" key={t}>
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="panel">
-                      <div className="panel__head">
-                        <div>
-                          <div className="panel__kicker">Tech</div>
-                          <h2 className="panel__title">Tools & technologies</h2>
-                          <p className="panel__desc">Main frameworks, libraries, and tooling used.</p>
-                        </div>
-                      </div>
-                      <div className="stack" aria-label="Tech used">
-                        {selectedProject.tech.map((t) => (
-                          <span className="pill" key={t}>
-                            {t}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="panel">
-                    <div className="panel__head">
-                      <div>
-                        <div className="panel__kicker">Highlights</div>
-                        <h2 className="panel__title">What was built</h2>
-                        <p className="panel__desc">A quick breakdown of the most important features.</p>
-                      </div>
-                    </div>
-                    <ul className="details__list">
-                      {selectedProject.highlights.map((h) => (
-                        <li key={h}>{h}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </section>
-              ) : (
-                <section className="details" aria-label="Project details">
-                  <button className="details__back" type="button" onClick={() => setPage('projects')}>
-                    ← Back to Projects
-                  </button>
-                  <div className="panel">
-                    <div className="panel__head">
-                      <div>
-                        <div className="panel__kicker">Not found</div>
-                        <h2 className="panel__title">Project not found</h2>
-                        <p className="panel__desc">Please go back and select a project again.</p>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              )}
-            </>
-          )}
+            ) : (
+              <Routes>
+                <Route path="/" element={<HomePage techCategories={techCategories} navigateToProjects={navigate} />} />
+                <Route path="/projects" element={<ProjectsPage />} />
+                <Route path="/projects/:id" element={<ProjectDetailsPage />} />
+                <Route path="/details/:id" element={<Navigate to="/projects/:id" replace />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            )}
           </div>
         </div>
       </main>
@@ -1761,6 +1371,399 @@ export default function App() {
         </div>
       ) : null}
     </div>
+  )
+}
+
+function HomePage({
+  techCategories,
+  navigateToProjects,
+}: {
+  techCategories: { title: string; items: { id: TechId; label: string }[] }[]
+  navigateToProjects: ReturnType<typeof useNavigate>
+}) {
+  return (
+    <>
+      <section className="hero hero--home">
+        <h1 className="hero__title">
+          Showcasing My Latest
+          <br />
+          Projects &amp; Solutions
+        </h1>
+        <p className="hero__sub">
+          Explore a curated collection of my frontend and full-stack applications,
+          <br />
+          built with passion from Peshawar, Pakistan.
+        </p>
+      </section>
+
+      <section className="categories" aria-label="Project categories">
+        <div className="category category--left">
+          <div className="category__head">
+            <div>
+              <div className="category__kicker">Category</div>
+              <h2 className="category__title">Frontend Projects</h2>
+              <p className="category__desc">UI-heavy builds: landing pages, dashboards, design systems and components.</p>
+            </div>
+            <button className="category__btn" type="button" onClick={() => navigateToProjects('/projects?kind=frontend')}>
+              View Frontend
+            </button>
+          </div>
+        </div>
+
+        <div className="category category--right">
+          <div className="category__head">
+            <div>
+              <div className="category__kicker">Category</div>
+              <h2 className="category__title">Full Stack Projects</h2>
+              <p className="category__desc">End-to-end apps: auth, APIs, databases, realtime features and admin tools.</p>
+            </div>
+            <button className="category__btn" type="button" onClick={() => navigateToProjects('/projects?kind=fullstack')}>
+              View Full Stack
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="stats" aria-label="Quick stats">
+        <div className="stat">
+          <div className="stat__num">32+</div>
+          <div className="stat__label">Projects shipped</div>
+        </div>
+        <div className="stat">
+          <div className="stat__num">3–7d</div>
+          <div className="stat__label">Typical MVP turnaround</div>
+        </div>
+        <div className="stat">
+          <div className="stat__num">100%</div>
+          <div className="stat__label">Responsive-first</div>
+        </div>
+        <div className="stat">
+          <div className="stat__num">A+</div>
+          <div className="stat__label">UI polish mindset</div>
+        </div>
+      </section>
+
+      <section className="panel" aria-label="What I do">
+        <div className="panel__head">
+          <div>
+            <div className="panel__kicker">Services</div>
+            <h2 className="panel__title">Professional, production-ready builds</h2>
+            <p className="panel__desc">
+              From pixel-perfect UI to scalable full-stack systems—clean UX, clear code, and fast iteration.
+            </p>
+          </div>
+          <a
+            className="panel__cta"
+            href="https://drive.google.com/file/d/1zMZhqjNw0h35NL6uRxD9JI9lHQBsS5h6/view?usp=sharing"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Download CV
+          </a>
+        </div>
+
+        <div className="features" aria-label="Highlights">
+          <div className="feature">
+            <div className="feature__title">Frontend engineering</div>
+            <div className="feature__desc">React UI, state patterns, component systems, and accessibility.</div>
+          </div>
+          <div className="feature">
+            <div className="feature__title">Full-stack delivery</div>
+            <div className="feature__desc">APIs, auth, DB design, deployment workflows, and admin panels.</div>
+          </div>
+          <div className="feature">
+            <div className="feature__title">Performance & UX</div>
+            <div className="feature__desc">Fast loads, smooth interactions, sensible defaults, and clarity.</div>
+          </div>
+        </div>
+
+        <div className="tech" aria-label="Tech stack">
+          {techCategories.map((c) => (
+            <section className="tech__section" key={c.title} aria-label={c.title}>
+              <div className="tech__title">{c.title}</div>
+              <div className="tech__grid">
+                {c.items.map((it) => (
+                  <div className="tech__tile" key={it.id} title={it.label} aria-label={it.label}>
+                    <TechIcon id={it.id} label={it.label} />
+                    <div className="tech__name">{it.label}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+      </section>
+
+      <section className="cta" aria-label="Call to action">
+        <div className="cta__inner">
+          <div>
+            <div className="cta__kicker">Let’s build something</div>
+            <h2 className="cta__title">Have a project in mind?</h2>
+            <p className="cta__desc">Share a brief and I’ll respond with a clear plan, timeline, and estimate.</p>
+          </div>
+          <div className="cta__actions">
+            <a className="cta__btn cta__btn--primary" href="mailto:tatheerabidi00@gmail.com">
+              Email Me
+            </a>
+            <button className="cta__btn" type="button" onClick={() => navigateToProjects('/projects?kind=frontend')}>
+              See Projects
+            </button>
+          </div>
+        </div>
+      </section>
+    </>
+  )
+}
+
+function ProjectsPage() {
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const kindParam = searchParams.get('kind')
+  const filter: Project['kind'] = kindParam === 'fullstack' ? 'fullstack' : 'frontend'
+
+  const [visibleCount, setVisibleCount] = useState(4)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+
+  const filteredProjects = useMemo(() => projects.filter((p) => p.kind === filter), [filter])
+
+  useEffect(() => {
+    setVisibleCount(4)
+    setIsLoadingMore(false)
+  }, [filter])
+
+  const loadMore = async () => {
+    if (isLoadingMore) return
+    const remaining = filteredProjects.length - visibleCount
+    if (remaining <= 0) return
+
+    setIsLoadingMore(true)
+    await new Promise((r) => setTimeout(r, 1000))
+    setVisibleCount((c) => Math.min(filteredProjects.length, c + 4))
+    setIsLoadingMore(false)
+  }
+
+  const goDetails = (id: string) => navigate(`/projects/${id}`)
+
+  return (
+    <>
+      <section className="hero hero--projects">
+        <h1 className="hero__title">Projects</h1>
+        <p className="hero__sub">
+          Showing: <strong>{filter === 'frontend' ? 'Frontend Projects' : 'Full Stack Projects'}</strong>
+        </p>
+        <div className="segmented" role="tablist" aria-label="Projects filter">
+          <button
+            className={`segmented__btn ${filter === 'frontend' ? 'is-active' : ''}`}
+            type="button"
+            role="tab"
+            aria-selected={filter === 'frontend'}
+            onClick={() => setSearchParams({ kind: 'frontend' })}
+          >
+            Frontend
+          </button>
+          <button
+            className={`segmented__btn ${filter === 'fullstack' ? 'is-active' : ''}`}
+            type="button"
+            role="tab"
+            aria-selected={filter === 'fullstack'}
+            onClick={() => setSearchParams({ kind: 'fullstack' })}
+          >
+            Full Stack
+          </button>
+        </div>
+      </section>
+
+      <section className="grid" aria-label="Projects">
+        {filteredProjects.slice(0, visibleCount).map((p) => (
+          <article
+            className="card card--clickable"
+            key={p.id}
+            tabIndex={0}
+            role="link"
+            aria-label={`View details: ${p.title}`}
+            onClick={() => goDetails(p.id)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') goDetails(p.id)
+            }}
+          >
+            <Thumb tone={p.tone} />
+            <div className="card__body">
+              <h3 className="card__title">{p.title}</h3>
+              <p className="card__desc">{p.description}</p>
+            </div>
+            <button
+              className="card__cta"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                goDetails(p.id)
+              }}
+            >
+              View Details
+            </button>
+          </article>
+        ))}
+
+        {isLoadingMore
+          ? Array.from({ length: Math.min(4, Math.max(0, filteredProjects.length - visibleCount)) }).map((_, idx) => (
+              <div className="card skeleton" key={`sk-${filter}-${visibleCount}-${idx}`} aria-hidden="true">
+                <div className="thumb skeleton__thumb" />
+                <div className="card__body">
+                  <div className="skeleton__line skeleton__line--t" />
+                  <div className="skeleton__line skeleton__line--d1" />
+                  <div className="skeleton__line skeleton__line--d2" />
+                </div>
+                <div className="card__cta skeleton__btn" />
+              </div>
+            ))
+          : null}
+      </section>
+
+      <div className="more">
+        <button
+          className="more__btn"
+          type="button"
+          onClick={loadMore}
+          disabled={isLoadingMore || visibleCount >= filteredProjects.length}
+        >
+          {visibleCount >= filteredProjects.length ? 'No more projects' : isLoadingMore ? 'Loading…' : 'View More'}
+        </button>
+      </div>
+    </>
+  )
+}
+
+function ProjectDetailsPage() {
+  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
+  const selectedProject = useMemo(() => projects.find((p) => p.id === id) ?? null, [id])
+
+  if (!selectedProject) {
+    return (
+      <section className="details" aria-label="Project details">
+        <button className="details__back" type="button" onClick={() => navigate('/projects?kind=frontend')}>
+          ← Back to Projects
+        </button>
+        <div className="panel">
+          <div className="panel__head">
+            <div>
+              <div className="panel__kicker">Not found</div>
+              <h2 className="panel__title">Project not found</h2>
+              <p className="panel__desc">Please go back and select a project again.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section className="details" aria-label="Project details">
+      <button
+        className="details__back"
+        type="button"
+        onClick={() => navigate(`/projects?kind=${selectedProject.kind}`)}
+      >
+        ← Back to Projects
+      </button>
+
+      <div className="details__top">
+        <div className="details__meta">
+          <div className="details__kicker">{selectedProject.kind === 'frontend' ? 'Frontend Project' : 'Full Stack Project'}</div>
+          <h1 className="details__title">{selectedProject.title}</h1>
+          <p className="details__sub">{selectedProject.description}</p>
+
+          <div className="details__chips" aria-label="Project facts">
+            <span className="pill">Client: {selectedProject.client}</span>
+            <span className="pill">Role: {selectedProject.role}</span>
+            <span className="pill">Timeline: {selectedProject.timeline}</span>
+          </div>
+
+          <div className="details__actions">
+            <a className="cta__btn cta__btn--primary" href={selectedProject.liveUrl} target="_blank" rel="noreferrer">
+              Live Preview
+            </a>
+            <a className="cta__btn" href={selectedProject.repoUrl} target="_blank" rel="noreferrer">
+              GitHub Repo
+            </a>
+          </div>
+        </div>
+
+        <div className="details__hero" aria-label="Website screenshot">
+          <div className={`shot shot--${selectedProject.tone}`}>
+            <div className="shot__bar">
+              <div className="shot__dot" />
+              <div className="shot__dot" />
+              <div className="shot__dot" />
+            </div>
+            <div className="shot__body">
+              <div className="shot__sidebar" />
+              <div className="shot__content">
+                <div className="shot__h" />
+                <div className="shot__p" />
+                <div className="shot__p shot__p--2" />
+                <div className="shot__grid">
+                  <div className="shot__card" />
+                  <div className="shot__card" />
+                  <div className="shot__card" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="details__cols">
+        <div className="panel">
+          <div className="panel__head">
+            <div>
+              <div className="panel__kicker">Stack</div>
+              <h2 className="panel__title">What it includes</h2>
+              <p className="panel__desc">Key building blocks and deliverables for this project.</p>
+            </div>
+          </div>
+          <div className="stack" aria-label="Stack">
+            {selectedProject.stack.map((t) => (
+              <span className="pill" key={t}>
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="panel">
+          <div className="panel__head">
+            <div>
+              <div className="panel__kicker">Tech</div>
+              <h2 className="panel__title">Tools & technologies</h2>
+              <p className="panel__desc">Main frameworks, libraries, and tooling used.</p>
+            </div>
+          </div>
+          <div className="stack" aria-label="Tech used">
+            {selectedProject.tech.map((t) => (
+              <span className="pill" key={t}>
+                {t}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="panel">
+        <div className="panel__head">
+          <div>
+            <div className="panel__kicker">Highlights</div>
+            <h2 className="panel__title">What was built</h2>
+            <p className="panel__desc">A quick breakdown of the most important features.</p>
+          </div>
+        </div>
+        <ul className="details__list">
+          {selectedProject.highlights.map((h) => (
+            <li key={h}>{h}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
   )
 }
 
