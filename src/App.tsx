@@ -1,6 +1,40 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import emailjs from '@emailjs/browser'
 import logoUrl from './assets/logo.png'
+import {
+  SiAuth0,
+  SiCss,
+  SiDocker,
+  SiExpress,
+  SiFramer,
+  SiGithubactions,
+  SiGraphql,
+  SiHtml5,
+  SiJest,
+  SiLaravel,
+  SiLinux,
+  SiMaterialdesign,
+  SiMongodb,
+  SiMysql,
+  SiNestjs,
+  SiNextdotjs,
+  SiNginx,
+  SiNodedotjs,
+  SiPostgresql,
+  SiPrisma,
+  SiReact,
+  SiReactquery,
+  SiRedis,
+  SiRedux,
+  SiSass,
+  SiSocketdotio,
+  SiTailwindcss,
+  SiTypescript,
+  SiVite,
+  SiXampp,
+  SiZod,
+} from 'react-icons/si'
+import type { IconType } from 'react-icons'
 
 type Project = {
   id: string
@@ -670,394 +704,102 @@ type TechId =
   | 'cicd'
 
 function TechIcon({ id, label }: { id: TechId; label: string }) {
-  const common = {
-    className: `tech__icon tech__icon--${id}`,
-    width: 22,
-    height: 22,
-    viewBox: '0 0 24 24',
-    'aria-hidden': true as const,
+  const size = 22
+  const iconMap: Partial<Record<TechId, IconType>> = {
+    react: SiReact,
+    ts: SiTypescript,
+    next: SiNextdotjs,
+    vite: SiVite,
+    html: SiHtml5,
+    css: SiCss,
+    sass: SiSass,
+    tailwind: SiTailwindcss,
+    mui: SiMaterialdesign,
+    framer: SiFramer,
+    node: SiNodedotjs,
+    express: SiExpress,
+    nestjs: SiNestjs,
+    php: undefined,
+    laravel: SiLaravel,
+    xampp: SiXampp,
+    mysql: SiMysql,
+    postgres: SiPostgresql,
+    mongo: SiMongodb,
+    redis: SiRedis,
+    prisma: SiPrisma,
+    graphql: SiGraphql,
+    jwt: undefined,
+    oauth: SiAuth0,
+    ws: SiSocketdotio,
+    zod: SiZod,
+    rq: SiReactquery,
+    redux: SiRedux,
+    jest: SiJest,
+    playwright: undefined,
+    docker: SiDocker,
+    nginx: SiNginx,
+    linux: SiLinux,
+    aws: undefined,
+    cicd: SiGithubactions,
   }
 
-  switch (id) {
-    case 'react':
-      return (
-        <svg {...common} fill="none">
-          <circle cx="12" cy="12" r="2.2" fill="currentColor" opacity="0.9" />
-          <ellipse cx="12" cy="12" rx="9" ry="3.6" stroke="currentColor" strokeWidth="1.6" opacity="0.9" />
-          <ellipse
-            cx="12"
-            cy="12"
-            rx="9"
-            ry="3.6"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            opacity="0.6"
-            transform="rotate(60 12 12)"
-          />
-          <ellipse
-            cx="12"
-            cy="12"
-            rx="9"
-            ry="3.6"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            opacity="0.6"
-            transform="rotate(120 12 12)"
-          />
-        </svg>
-      )
-    case 'ts':
-      return (
-        <svg {...common} fill="none">
-          <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M7.7 10.2h4.9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          <path d="M10.2 10.2v7.1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          <path
-            d="M16.4 12.2c-.3-.9-1.2-1.4-2.2-1.4-1.2 0-2 .7-2 1.6 0 2.4 4.6 1.1 4.6 3.6 0 1.2-1.1 2.1-2.8 2.1-1.5 0-2.6-.6-3.1-1.7"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      )
-    case 'next':
-      return (
-        <svg {...common} fill="none">
-          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
-          <path
-            d="M8.2 16.2V7.8l7.6 8.4"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path d="M15.8 7.8v8.4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-      )
-    case 'vite':
-      return (
-        <svg {...common} fill="none">
-          <path
-            d="M12 3.5 20 7.6l-2.2 11L12 20.5 6.2 18.6 4 7.6 12 3.5Z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinejoin="round"
-          />
-          <path d="M9.2 9.5 12 7.6l2.8 1.9L12 15.6 9.2 9.5Z" fill="currentColor" opacity="0.75" />
-        </svg>
-      )
-    case 'html':
-      return (
-        <svg {...common} fill="none">
-          <path d="M6 3h12l-1.2 15L12 21l-4.8-3L6 3Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M8.5 7.2h7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          <path d="M8.8 11h6.4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-      )
-    case 'css':
-      return (
-        <svg {...common} fill="none">
-          <path d="M6 3h12l-1.2 15L12 21l-4.8-3L6 3Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M8.7 8.2h6.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          <path d="M9 12.2h5.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          <path d="M10 16l2 .8 2-.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )
-    case 'sass':
-      return (
-        <svg {...common} fill="none">
-          <path
-            d="M8.2 15.8c-1.2-1 .2-2.8 2.2-3.4 2.4-.8 5.6-.2 5.8 1.7.2 1.4-1 2.4-2.5 2.3-1.2 0-2.3-.6-3.3-1.2"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M9.3 12.4c-.7-2.2 2.1-4.2 4.6-4 2 .1 2.8 1.2 2.4 2.2-.5 1.4-3.2 1.6-4.7 1.8"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            opacity="0.8"
-          />
-        </svg>
-      )
-    case 'tailwind':
-      return (
-        <svg {...common} fill="none">
-          <path
-            d="M6.2 12c1-2.7 2.7-4.1 5-4.1 1.5 0 2.6.6 3.5 1.8.6.8 1.2 1.1 1.9 1.1 1.1 0 2.1-.8 2.9-2.5-.5 3.2-2.2 4.9-4.8 4.9-1.4 0-2.5-.6-3.4-1.8-.6-.8-1.2-1.1-1.9-1.1-1.2 0-2.2.9-3.2 2.7Z"
-            fill="currentColor"
-            opacity="0.9"
-          />
-          <path
-            d="M6.2 16.1c1-2.7 2.7-4.1 5-4.1 1.5 0 2.6.6 3.5 1.8.6.8 1.2 1.1 1.9 1.1 1.1 0 2.1-.8 2.9-2.5-.5 3.2-2.2 4.9-4.8 4.9-1.4 0-2.5-.6-3.4-1.8-.6-.8-1.2-1.1-1.9-1.1-1.2 0-2.2.9-3.2 2.7Z"
-            fill="currentColor"
-            opacity="0.55"
-          />
-        </svg>
-      )
-    case 'mui':
-      return (
-        <svg {...common} fill="none">
-          <path d="M4.5 8.2 12 4l7.5 4.2V16L12 20l-7.5-4V8.2Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M8.2 10.2 12 8l3.8 2.2V15L12 17l-3.8-2v-4.8Z" fill="currentColor" opacity="0.55" />
-        </svg>
-      )
-    case 'framer':
-      return (
-        <svg {...common} fill="none">
-          <path d="M7 4h10v6H10.2L7 4Z" fill="currentColor" opacity="0.9" />
-          <path d="M10.2 10H17v6H7l3.2-6Z" fill="currentColor" opacity="0.55" />
-          <path d="M7 16h7.2L17 20H7v-4Z" fill="currentColor" opacity="0.35" />
-        </svg>
-      )
-    case 'node':
-      return (
-        <svg {...common} fill="none">
-          <path
-            d="M12 3.4 19.3 7.6v8.8L12 20.6 4.7 16.4V7.6L12 3.4Z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinejoin="round"
-          />
-          <path d="M9.1 15.1V9.3l5.8 5.8V9.3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )
-    case 'express':
-      return (
-        <svg {...common} fill="none">
-          <path d="M6.2 8.2h11.6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          <path d="M6.2 12h8.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
-          <path d="M6.2 15.8h11.6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" opacity="0.55" />
-        </svg>
-      )
-    case 'nestjs':
-      return (
-        <svg {...common} fill="none">
-          <path
-            d="M12 4.2c3.6 0 6.5 2.6 6.5 6 0 4.6-6.5 9.6-6.5 9.6S5.5 14.8 5.5 10.2c0-3.4 2.9-6 6.5-6Z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-          />
-          <path
-            d="M9.1 11.2c.6-1.4 1.6-2.1 3-2.1 1.2 0 2.2.5 2.8 1.4"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-          />
-        </svg>
-      )
-    case 'php':
-      return (
-        <svg {...common} fill="none">
-          <ellipse cx="12" cy="12" rx="9" ry="6.2" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M8.2 14.8V9.2h2.2a1.8 1.8 0 0 1 0 3.6H8.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M13.2 14.8V9.2h2.2a1.8 1.8 0 0 1 0 3.6h-2.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.75" />
-        </svg>
-      )
-    case 'laravel':
-      return (
-        <svg {...common} fill="none">
-          <path d="M7.2 9.2 12 6.6l4.8 2.6v5.6L12 17.4l-4.8-2.6V9.2Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M12 6.6v10.8" stroke="currentColor" strokeWidth="1.6" opacity="0.55" />
-          <path d="M7.2 9.2 12 12l4.8-2.8" stroke="currentColor" strokeWidth="1.6" opacity="0.55" />
-        </svg>
-      )
-    case 'xampp':
-      return (
-        <svg {...common} fill="none">
-          <rect x="5" y="5" width="14" height="14" rx="6" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M8.2 15.8 15.8 8.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          <path d="M8.2 8.2h7.6v7.6H8.2V8.2Z" stroke="currentColor" strokeWidth="1.2" opacity="0.5" />
-        </svg>
-      )
-    case 'mysql':
-      return (
-        <svg {...common} fill="none">
-          <path
-            d="M7.2 15.8c.2-2.2 2.2-4.2 5.2-4.2 3.4 0 4.6 1.7 4.6 3.5 0 1.2-.6 2.1-1.6 2.7"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-          />
-          <path d="M9.2 10.4c.4-1.5 1.7-2.7 3.4-2.7 1.4 0 2.5.7 3.1 1.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
-          <path d="M9.4 16.8h5.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.5" />
-        </svg>
-      )
-    case 'postgres':
-      return (
-        <svg {...common} fill="none">
-          <path
-            d="M12 5.2c3.4 0 5.8 1.8 5.8 4.4 0 2.2-1.6 3.8-3.8 4.2v3.1c0 1.1-.9 1.9-2 1.9s-2-.8-2-1.9v-3.1C7.8 13.4 6.2 11.8 6.2 9.6c0-2.6 2.4-4.4 5.8-4.4Z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-          />
-          <path d="M9.2 9.8h5.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
-        </svg>
-      )
-    case 'mongo':
-      return (
-        <svg {...common} fill="none">
-          <path
-            d="M12 4.3c2.2 2.3 3.6 4.7 3.6 7.4 0 3.6-2 6.6-3.6 7.9-1.6-1.3-3.6-4.3-3.6-7.9 0-2.7 1.4-5.1 3.6-7.4Z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-          />
-          <path d="M12 7.2v12.5" stroke="currentColor" strokeWidth="1.6" opacity="0.6" />
-        </svg>
-      )
-    case 'redis':
-      return (
-        <svg {...common} fill="none">
-          <path d="M6.2 9.2 12 6.4l5.8 2.8L12 12 6.2 9.2Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M6.2 9.2V15L12 18l5.8-3V9.2" stroke="currentColor" strokeWidth="1.6" opacity="0.7" />
-          <path d="M9.3 10.2h.01" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-        </svg>
-      )
-    case 'prisma':
-      return (
-        <svg {...common} fill="none">
-          <path d="M7.2 17.4 12 4.8l4.8 12.6-4.8 2-4.8-2Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-          <path d="M12 4.8v14.6" stroke="currentColor" strokeWidth="1.4" opacity="0.6" />
-        </svg>
-      )
-    case 'graphql':
-      return (
-        <svg {...common} fill="none">
-          <path d="M12 5.2 17.7 8.6v6.8L12 18.8 6.3 15.4V8.6L12 5.2Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M6.9 9.1 17.1 15.3" stroke="currentColor" strokeWidth="1.2" opacity="0.7" />
-          <path d="M17.1 9.1 6.9 15.3" stroke="currentColor" strokeWidth="1.2" opacity="0.7" />
-        </svg>
-      )
-    case 'docker':
-      return (
-        <svg {...common} fill="none">
-          <path d="M7.4 12.2h2.2v2.2H7.4v-2.2Zm3 0h2.2v2.2h-2.2v-2.2Zm3 0h2.2v2.2h-2.2v-2.2Z" fill="currentColor" opacity="0.9" />
-          <path d="M6.6 15.1c.7 2.1 2.4 3.4 5.2 3.4 3.8 0 6-1.8 6.8-5.1.5.1 1.2-.1 1.6-.6-.6-.7-1.3-1-2.2-.9-.2-1.2-1-2-2.2-2.3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-        </svg>
-      )
-    case 'aws':
-      return (
-        <svg {...common} fill="none">
-          <path d="M7.2 15.8c2 1.2 7.6 1.2 9.6 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          <path d="M8.2 9.3h2.1l1.7 6.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M15.8 9.3h-2.1L12 15.9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" opacity="0.75" />
-        </svg>
-      )
-    case 'linux':
-      return (
-        <svg {...common} fill="none">
-          <path
-            d="M12 5.2c2 0 3.4 1.9 3.4 4.2 0 1.4-.5 2.3-1.2 3.1.7.8 1.4 1.8 1.4 3.2 0 2-1.6 3.1-3.6 3.1s-3.6-1.1-3.6-3.1c0-1.4.7-2.4 1.4-3.2-.7-.8-1.2-1.7-1.2-3.1 0-2.3 1.4-4.2 3.4-4.2Z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-          />
-          <path d="M10.2 9.8h.01M13.8 9.8h.01" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-        </svg>
-      )
-    case 'nginx':
-      return (
-        <svg {...common} fill="none">
-          <path d="M12 4.4 19 8.4v7.2l-7 4-7-4V8.4l7-4Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M9.4 15.6V9l5.2 6.6V9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )
-    case 'jest':
-      return (
-        <svg {...common} fill="none">
-          <path d="M10 7.4h4l-.6 9.2h-2.8L10 7.4Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-          <path d="M9.2 18.4h5.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.8" />
-        </svg>
-      )
-    case 'playwright':
-      return (
-        <svg {...common} fill="none">
-          <path d="M7.2 8.2h6.6v6.6H7.2V8.2Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M10.6 10.6h6.2v6.2h-6.2v-6.2Z" fill="currentColor" opacity="0.35" />
-        </svg>
-      )
-    case 'redux':
-      return (
-        <svg {...common} fill="none">
-          <path d="M8 16c-1.7-1.6-2.1-4.2-.8-6.3 1.5-2.6 5.4-3.6 8-1.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          <path d="M16 8c1.7 1.6 2.1 4.2.8 6.3-1.5 2.6-5.4 3.6-8 1.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.75" />
-          <circle cx="12" cy="12" r="1.6" fill="currentColor" opacity="0.9" />
-        </svg>
-      )
-    case 'rq':
-      return (
-        <svg {...common} fill="none">
-          <path d="M7.2 12a4.8 4.8 0 1 1 9.6 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          <path d="M7.2 12h9.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.65" />
-          <path d="M12 7.2v9.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.4" />
-        </svg>
-      )
-    case 'zod':
-      return (
-        <svg {...common} fill="none">
-          <path d="M7 7h10v3.2L10 17H7v-3.2L14 7H7Z" fill="currentColor" opacity="0.75" />
-          <path d="M7 7h10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-      )
-    case 'rest':
-      return (
-        <svg {...common} fill="none">
-          <path d="M7.2 12h9.6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          <path d="M14.2 9.2 17 12l-2.8 2.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )
-    case 'jwt':
-      return (
-        <svg {...common} fill="none">
-          <path d="M12 4.4 18.4 8v8L12 19.6 5.6 16V8L12 4.4Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M9.2 12h5.6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
-        </svg>
-      )
-    case 'oauth':
-      return (
-        <svg {...common} fill="none">
-          <path d="M9.2 12a2.8 2.8 0 1 1 5.6 0 2.8 2.8 0 0 1-5.6 0Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M12 3.8v3M12 17.2v3M3.8 12h3M17.2 12h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity="0.7" />
-        </svg>
-      )
-    case 'ws':
-      return (
-        <svg {...common} fill="none">
-          <path d="M8.2 8.6c1.8 1.6 1.8 5.2 0 6.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          <path d="M15.8 8.6c-1.8 1.6-1.8 5.2 0 6.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          <path d="M11.2 10.4h1.6v3.2h-1.6v-3.2Z" fill="currentColor" opacity="0.8" />
-        </svg>
-      )
-    case 'cicd':
-      return (
-        <svg {...common} fill="none">
-          <path d="M7.2 8.2h9.6v3.6H7.2V8.2Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M9 15.8h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          <path d="M12 11.8v4" stroke="currentColor" strokeWidth="1.6" opacity="0.6" />
-        </svg>
-      )
-    default:
-      // Text fallback (if we don't have an icon yet)
-      return (
-        <svg {...common} fill="none">
-          <rect x="3.5" y="3.5" width="17" height="17" rx="6" stroke="currentColor" strokeWidth="1.4" opacity="0.5" />
-          <text
-            x="12"
-            y="14"
-            textAnchor="middle"
-            fontSize="7"
-            fontWeight="800"
-            fill="currentColor"
-            style={{ letterSpacing: '0.3px' }}
-          >
-            {label.slice(0, 4).toUpperCase()}
-          </text>
-        </svg>
-      )
+  const brandColors: Partial<Record<TechId, string>> = {
+    react: '#61DAFB',
+    ts: '#3178C6',
+    next: '#111827',
+    vite: '#646CFF',
+    html: '#E34F26',
+    css: '#1572B6',
+    sass: '#CC6699',
+    tailwind: '#38BDF8',
+    mui: '#007FFF',
+    framer: '#111827',
+    node: '#3C873A',
+    express: '#111827',
+    nestjs: '#E0234E',
+    laravel: '#FF2D20',
+    xampp: '#FB7A24',
+    mysql: '#00758F',
+    postgres: '#336791',
+    mongo: '#47A248',
+    redis: '#D82C20',
+    prisma: '#0C344B',
+    graphql: '#E10098',
+    jwt: '#111827',
+    oauth: '#EB5424',
+    ws: '#111827',
+    zod: '#4F46E5',
+    rq: '#EF4444',
+    redux: '#764ABC',
+    jest: '#C21325',
+    playwright: '#111827',
+    docker: '#2496ED',
+    nginx: '#009639',
+    linux: '#111827',
+    aws: '#FF9900',
+    cicd: '#0EA5E9',
   }
+
+  const Cmp = iconMap[id]
+  if (Cmp) return <Cmp size={size} color={brandColors[id] ?? 'currentColor'} aria-hidden />
+
+  // Text fallback (if we don't have an icon yet)
+  return (
+    <svg className={`tech__icon tech__icon--${id}`} width={22} height={22} viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3.5" y="3.5" width="17" height="17" rx="6" stroke="currentColor" strokeWidth="1.4" opacity="0.5" />
+      <text
+        x="12"
+        y="14"
+        textAnchor="middle"
+        fontSize="7"
+        fontWeight="800"
+        fill="currentColor"
+        style={{ letterSpacing: '0.3px' }}
+      >
+        {label.slice(0, 4).toUpperCase()}
+      </text>
+    </svg>
+  )
 }
 
 const techCategories: { title: string; items: { id: TechId; label: string }[] }[] = [
